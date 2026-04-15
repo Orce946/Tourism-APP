@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sylhet - Visiting Places</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .places-container {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 40px 20px;
+        background: #D9EE9F;
+        min-height: 100vh;
+    }
+    
+    .back-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        background: #32470C;
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(50, 71, 12, 0.4);
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 100;
+    }
+    
+    .back-btn:hover {
+        background: #455A17;
+        transform: scale(1.05);
+        box-shadow: 0 12px 30px rgba(50, 71, 12, 0.6);
+    }
+    
+    .places-header {
+        text-align: center;
+        margin-bottom: 40px;
+        margin-top: 20px;
+    }
+    
+    .places-header h1 {
+        color: #32470C;
+        font-size: 42px;
+        margin-bottom: 10px;
+    }
+    
+    .places-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px 40px;
+        padding: 20px 40px;
+        padding-bottom: 150px;
+        width: 100%;
+    }
+    
+    .place-item {
+        background: linear-gradient(135deg, #32470C 0%, #455A17 100%);
+        padding: 30px 40px;
+        border-radius: 20px;
+        color: white;
+        font-size: 22px;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(50, 71, 12, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .place-item:nth-child(odd) {
+        background: linear-gradient(135deg, #32470C 0%, #455A17 100%);
+    }
+    
+    .place-item:nth-child(even) {
+        background: linear-gradient(135deg, #455A17 0%, #768C43 100%);
+    }
+    
+    .place-item:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 12px 35px rgba(50, 71, 12, 0.45);
+    }
+    
+    .place-item::before {
+        content: "📍 ";
+        margin-right: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .places-list {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .place-item {
+            font-size: 18px;
+            padding: 25px 30px;
+        }
+        
+        .back-btn {
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="places-container">
+    <a href="ui.html" class="back-btn">← Back to Home</a>
+    
+    <div class="places-header">
+        <h1>Sylhet</h1>
+        <p style="color: #666; font-size: 18px;">Visiting Places</p>
+    </div>
+    
+    <div class="places-list">
+        <div class="place-item">Ratargul Swamp Forest</div>
+        <div class="place-item">Jaflong</div>
+        <div class="place-item">Lalakhal</div>
+        <div class="place-item">Srimangal</div>
+        <div class="place-item">Lawachara National Park</div>
+        <div class="place-item">Shahjalal Mazar</div>
+        <div class="place-item">Madhabkunda Waterfall</div>
+        <div class="place-item">Bisnakandi</div>
+        <div class="place-item">Tanguar Haor</div>
+        <div class="place-item">Tea Gardens</div>
+        <div class="place-item">Satchari National Park</div>
+        <div class="place-item">Jaintapur</div>
+    </div>
+</div>
+
+</body>
+</html>

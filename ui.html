@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bangladesh Tourism App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="header-content">
+            <div class="header-icon">😊</div>
+            <h1>Bangladesh</h1>
+            <p>Welcome to Bangladesh, Enjoy Your Travel</p>
+            <div class="header-divider"></div>
+        </div>
+    </div>
+
+    <div class="page-controls home-controls">
+        <div class="control-group">
+            <label for="divisionSearch">Search Division</label>
+            <input id="divisionSearch" type="search" placeholder="Search by division name">
+        </div>
+        <div class="control-group">
+            <label for="budgetFilter">Budget Range</label>
+            <select id="budgetFilter">
+                <option value="all">All Budgets</option>
+                <option value="low">Low Budget</option>
+                <option value="medium">Medium Budget</option>
+                <option value="high">High Budget</option>
+            </select>
+        </div>
+        <div class="control-group grow">
+            <label for="divisionSort">Sort By</label>
+            <select id="divisionSort">
+                <option value="name">Division Name</option>
+                <option value="cheapest">Cheapest Trip</option>
+                <option value="spots">Number of Spots</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="resultsSummary" class="results-summary"></div>
+
+    <!-- Divisions Grid (Loaded from destinations.json) -->
+    <div id="divisionGrid" class="grid-section"></div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

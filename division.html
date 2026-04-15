@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Division Details</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="division-page">
+
+<div class="division-shell">
+    <a href="ui.html" class="back-link">← Back to Home</a>
+
+    <section class="division-hero">
+        <div>
+            <p class="eyebrow">Dynamic Destination Detail</p>
+            <h1 id="divisionName">Division Name</h1>
+            <p id="divisionMeta" class="hero-meta">Loading details...</p>
+        </div>
+        <div id="divisionStats" class="hero-stats"></div>
+    </section>
+
+    <div class="page-controls detail-controls">
+        <div class="control-group">
+            <label for="spotSearch">Search Spot</label>
+            <input id="spotSearch" type="search" placeholder="Search by tourist spot">
+        </div>
+        <div class="control-group">
+            <label for="spotBudgetFilter">Budget Range</label>
+            <select id="spotBudgetFilter">
+                <option value="all">All Budgets</option>
+                <option value="low">Low Budget</option>
+                <option value="medium">Medium Budget</option>
+                <option value="high">High Budget</option>
+            </select>
+        </div>
+        <div class="control-group grow">
+            <label for="spotSort">Sort By</label>
+            <select id="spotSort">
+                <option value="name">Spot Name</option>
+                <option value="cost-low">Lowest Cost</option>
+                <option value="cost-high">Highest Cost</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="spotSummary" class="results-summary"></div>
+    <div id="spotGrid" class="spot-grid"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

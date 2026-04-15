@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings - Ghuri-Phiri</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .nav-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .setting-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .setting-card h3 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            background: #667eea;
+            color: white;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            background: #ddd;
+            color: #333;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #bbb;
+        }
+        
+        .preference-item {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.8rem;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .preference-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        .preference-item label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div>
+            <h2 style="margin: 0; color: #667eea;">🧭 Ghuri-Phiri User Panel</h2>
+        </div>
+        <div class="nav-links">
+            <a href="/frontend/panels/user/pages/dashboard.html">Dashboard</a>
+            <a href="/frontend/panels/user/pages/bookmarks.html">Bookmarks</a>
+            <a href="/frontend/panels/user/pages/travel-plans.html">Travel Plans</a>
+            <a href="/frontend/panels/user/pages/profile.html" class="active">Profile</a>
+        </div>
+        <div class="profile-badge">
+            <span id="user-name">Welcome!</span>
+            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>⚙️ Profile Settings</h1>
+            <p>Manage your account information and preferences</p>
+        </div>
+
+        <div class="settings-container">
+            <!-- Account Information -->
+            <div class="setting-card">
+                <h3>👤 Account Information</h3>
+                <div class="info-box">
+                    <p>Update your personal information and contact details</p>
+                </div>
+                
+                <form id="accountForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" placeholder="Enter first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" placeholder="Enter last name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="you@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+880 1234 567890">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Bio / About You</label>
+                        <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" class="btn-primary" onclick="saveAccountInfo()">Save Changes</button>
+                        <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preferences -->
+            <div class="setting-card">
+                <h3>🎯 Travel Preferences</h3>
+                <div class="info-box">
+                    <p>Customize your travel recommendations based on your preferences</p>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 1rem; font-weight: bold;">Budget Range</label>
+                    <select id="budgetRange" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="low">Budget ৳ (Below 50,000)</option>
+                        <option value="medium">Moderate ৳৳ (50,000 - 100,000)</option>
+                        <option value="high">Comfortable ৳৳৳ (100,000 - 200,000)</option>
+                        <option value="luxury">Luxury ৳৳৳৳ (Above 200,000)</option>
+                    </select>
+                </div>
+
+                <label style="display: block; margin: 2rem 0 1rem 0; font-weight: bold;">Interested Categories</label>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-nature" checked>
+                    <label for="pref-nature">🏞️ Nature & Beaches</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-culture" checked>
+                    <label for="pref-culture">🏛️ Culture & Heritage</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-adventure">
+                    <label for="pref-adventure">🧗 Adventure & Sports</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-food">
+                    <label for="pref-food">🍜 Food & Dining</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-shopping">
+                    <label for="pref-shopping">🛍️ Shopping & Markets</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="pref-nightlife">
+                    <label for="pref-nightlife">🌃 Nightlife & Entertainment</label>
+                </div>
+
+                <div class="button-group" style="margin-top: 2rem;">
+                    <button class="btn-primary" onclick="savePreferences()">Save Preferences</button>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="setting-card">
+                <h3>🔒 Security & Password</h3>
+                <div class="info-box">
+                    <p>Keep your account secure by updating your password regularly</p>
+                </div>
+                
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" placeholder="Enter current password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" class="btn-primary" onclick="changePassword()">Update Password</button>
+                        <button type="button" class="btn-secondary" onclick="resetPasswordForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notifications -->
+            <div class="setting-card">
+                <h3>🔔 Notifications</h3>
+                <div class="info-box">
+                    <p>Choose what notifications you'd like to receive</p>
+                </div>
+                
+                <div class="preference-item">
+                    <input type="checkbox" id="notif-email" checked>
+                    <label for="notif-email">📧 Email notifications</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="notif-push">
+                    <label for="notif-push">🔔 Push notifications</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="notif-deals" checked>
+                    <label for="notif-deals">💰 Deal & offer notifications</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="notif-newsletter" checked>
+                    <label for="notif-newsletter">📰 Weekly newsletter</label>
+                </div>
+
+                <div class="button-group" style="margin-top: 2rem;">
+                    <button class="btn-primary" onclick="saveNotifications()">Save Notification Settings</button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="setting-card" style="border-left: 4px solid #ff6b6b;">
+                <h3 style="color: #ff6b6b; border-bottom-color: #ff6b6b;">⚠️ Danger Zone</h3>
+                <p style="color: #666; margin-bottom: 1rem;">These actions are irreversible. Please be careful.</p>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="deleteAccount()" style="background: #ff6b6b; color: white;">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        function checkUserLoggedIn() {
+            if (!localStorage.getItem('user_token')) {
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+                return;
+            }
+        }
+
+        // Load user data
+        function loadUserData() {
+            const userName = localStorage.getItem('user_name') || 'Tourist';
+            document.getElementById('user-name').textContent = `👤 ${userName}`;
+            
+            // Load existing profile data if available
+            const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+            document.getElementById('firstName').value = profile.firstName || '';
+            document.getElementById('lastName').value = profile.lastName || '';
+            document.getElementById('email').value = localStorage.getItem('user_email') || '';
+            document.getElementById('phone').value = profile.phone || '';
+            document.getElementById('bio').value = profile.bio || '';
+            document.getElementById('budgetRange').value = profile.budgetRange || 'medium';
+        }
+
+        // Save account information
+        function saveAccountInfo() {
+            const profile = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                phone: document.getElementById('phone').value,
+                bio: document.getElementById('bio').value
+            };
+            localStorage.setItem('user_profile', JSON.stringify(profile));
+            alert('✅ Account information saved successfully!');
+        }
+
+        // Save preferences
+        function savePreferences() {
+            const preferences = {
+                budgetRange: document.getElementById('budgetRange').value,
+                nature: document.getElementById('pref-nature').checked,
+                culture: document.getElementById('pref-culture').checked,
+                adventure: document.getElementById('pref-adventure').checked,
+                food: document.getElementById('pref-food').checked,
+                shopping: document.getElementById('pref-shopping').checked,
+                nightlife: document.getElementById('pref-nightlife').checked
+            };
+            localStorage.setItem('user_preferences', JSON.stringify(preferences));
+            alert('✅ Preferences saved successfully!');
+        }
+
+        // Save notification settings
+        function saveNotifications() {
+            const notifications = {
+                email: document.getElementById('notif-email').checked,
+                push: document.getElementById('notif-push').checked,
+                deals: document.getElementById('notif-deals').checked,
+                newsletter: document.getElementById('notif-newsletter').checked
+            };
+            localStorage.setItem('user_notifications', JSON.stringify(notifications));
+            alert('✅ Notification settings saved successfully!');
+        }
+
+        // Change password
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (!current || !newPass || !confirm) {
+                alert('⚠️ Please fill all password fields');
+                return;
+            }
+            
+            if (newPass !== confirm) {
+                alert('⚠️ Passwords do not match');
+                return;
+            }
+            
+            if (newPass.length < 6) {
+                alert('⚠️ Password must be at least 6 characters');
+                return;
+            }
+            
+            alert('✅ Password changed successfully!\n\nPlease log in again with your new password.');
+            resetPasswordForm();
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (!confirm('This action is permanent and cannot be undone. All your data will be deleted. Are you sure?')) {
+                return;
+            }
+            
+            if (!confirm('Type "DELETE" to confirm account deletion (not implemented):\n\nThis is a demonstration. Real deletion would require backend confirmation.')) {
+                return;
+            }
+            
+            alert('Account deletion request received. This feature requires backend implementation.');
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('accountForm').reset();
+            loadUserData();
+        }
+
+        // Reset password form
+        function resetPasswordForm() {
+            document.getElementById('passwordForm').reset();
+        }
+
+        // Logout function
+        function logoutUser() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user_token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_email');
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+            }
+        }
+
+        // Initialize
+        checkUserLoggedIn();
+        loadUserData();
+    </script>
+</body>
+</html>

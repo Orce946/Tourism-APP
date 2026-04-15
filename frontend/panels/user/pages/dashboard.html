@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Ghuri-Phiri</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .user-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-greeting h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .panel-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .panel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .panel-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .panel-card-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .panel-card-body {
+            padding: 1.5rem;
+        }
+        
+        .panel-card h3 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .panel-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+        
+        .nav-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .recent-activity {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .activity-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .activity-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div>
+            <h2 style="margin: 0; color: #667eea;">🧭 Ghuri-Phiri User Panel</h2>
+        </div>
+        <div class="nav-links">
+            <a href="/frontend/panels/user/pages/dashboard.html" class="active">Dashboard</a>
+            <a href="/frontend/panels/user/pages/bookmarks.html">Bookmarks</a>
+            <a href="/frontend/panels/user/pages/travel-plans.html">Travel Plans</a>
+            <a href="/frontend/panels/user/pages/profile.html">Profile</a>
+        </div>
+        <div class="profile-badge">
+            <span id="user-name">Welcome!</span>
+            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <!-- User Header -->
+        <div class="user-panel-header">
+            <div class="user-info">
+                <div class="user-greeting">
+                    <h1>Welcome back! 👋</h1>
+                    <p>Here's your travel dashboard for Ghuri-Phiri</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="user-stats">
+            <div class="stat-card">
+                <h3>Bookmarked Places</h3>
+                <div class="number" id="bookmark-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Plans</h3>
+                <div class="number" id="plan-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Visited</h3>
+                <div class="number" id="visited-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Budget Saved</h3>
+                <div class="number" id="budget-saved">৳0</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="panels-grid">
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <div class="panel-card-icon">🔖</div>
+                    <h3>My Bookmarks</h3>
+                </div>
+                <div class="panel-card-body">
+                    <p>View all your saved destinations and favorite places</p>
+                    <a href="/frontend/panels/user/pages/bookmarks.html" class="btn-primary">View Bookmarks</a>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <div class="panel-card-icon">✈️</div>
+                    <h3>Travel Plans</h3>
+                </div>
+                <div class="panel-card-body">
+                    <p>Create and manage your trip itineraries</p>
+                    <a href="/frontend/panels/user/pages/travel-plans.html" class="btn-primary">View Plans</a>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <div class="panel-card-icon">⚙️</div>
+                    <h3>Profile Settings</h3>
+                </div>
+                <div class="panel-card-body">
+                    <p>Update your account information and preferences</p>
+                    <a href="/frontend/panels/user/pages/profile.html" class="btn-primary">Settings</a>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <div class="panel-card-icon">🏠</div>
+                    <h3>Back to App</h3>
+                </div>
+                <div class="panel-card-body">
+                    <p>Return to the main Ghuri-Phiri tourism interface</p>
+                    <a href="/frontend/home/" class="btn-primary">Home</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3>📋 Recent Activity</h3>
+            <ul class="activity-list" id="activity-list">
+                <li class="activity-item">
+                    <span>Logged in to your account</span>
+                    <span class="activity-time">Just now</span>
+                </li>
+                <li class="activity-item">
+                    <span>Your account is active and ready to explore</span>
+                    <span class="activity-time">Welcome!</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        function checkUserLoggedIn() {
+            if (!localStorage.getItem('user_token')) {
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+                return;
+            }
+        }
+
+        // Load user data
+        function loadUserData() {
+            const userName = localStorage.getItem('user_name') || 'Tourist';
+            document.getElementById('user-name').textContent = `👤 ${userName}`;
+            
+            // Load stats from localStorage (will be fetched from API in Phase 2)
+            const bookmarks = JSON.parse(localStorage.getItem('user_bookmarks') || '[]');
+            const plans = JSON.parse(localStorage.getItem('user_plans') || '[]');
+            
+            document.getElementById('bookmark-count').textContent = bookmarks.length;
+            document.getElementById('plan-count').textContent = plans.length;
+            document.getElementById('visited-count').textContent = '0';
+            document.getElementById('budget-saved').textContent = '৳0';
+        }
+
+        // Logout function
+        function logoutUser() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user_token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_email');
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+            }
+        }
+
+        // Initialize
+        checkUserLoggedIn();
+        loadUserData();
+    </script>
+</body>
+</html>

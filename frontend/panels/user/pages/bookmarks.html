@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookmarks - Ghuri-Phiri</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .nav-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .bookmarks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .bookmark-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .bookmark-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .bookmark-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+        
+        .bookmark-body {
+            padding: 1.5rem;
+        }
+        
+        .bookmark-body h3 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .bookmark-body p {
+            color: #666;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .bookmark-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #764ba2;
+        }
+        
+        .btn-remove {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-remove:hover {
+            background: #ff5252;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div>
+            <h2 style="margin: 0; color: #667eea;">🧭 Ghuri-Phiri User Panel</h2>
+        </div>
+        <div class="nav-links">
+            <a href="/frontend/panels/user/pages/dashboard.html">Dashboard</a>
+            <a href="/frontend/panels/user/pages/bookmarks.html" class="active">Bookmarks</a>
+            <a href="/frontend/panels/user/pages/travel-plans.html">Travel Plans</a>
+            <a href="/frontend/panels/user/pages/profile.html">Profile</a>
+        </div>
+        <div class="profile-badge">
+            <span id="user-name">Welcome!</span>
+            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>🔖 My Bookmarks</h1>
+            <p>All the amazing places you've saved for your future travels</p>
+        </div>
+
+        <!-- Bookmarks Grid -->
+        <div id="bookmarks-container" class="bookmarks-grid"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h3>No bookmarks yet</h3>
+            <p>You haven't saved any places yet. Explore the map and save your favorite destinations!</p>
+            <a href="/frontend/home/" class="btn-primary">Explore Destinations</a>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        function checkUserLoggedIn() {
+            if (!localStorage.getItem('user_token')) {
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+                return;
+            }
+        }
+
+        // Load user data
+        function loadUserData() {
+            const userName = localStorage.getItem('user_name') || 'Tourist';
+            document.getElementById('user-name').textContent = `👤 ${userName}`;
+        }
+
+        // Load bookmarks
+        function loadBookmarks() {
+            const bookmarks = JSON.parse(localStorage.getItem('user_bookmarks') || '[]');
+            const container = document.getElementById('bookmarks-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (bookmarks.length === 0) {
+                emptyState.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.innerHTML = bookmarks.map((place, index) => `
+                <div class="bookmark-card">
+                    <div class="bookmark-image">🏞️</div>
+                    <div class="bookmark-body">
+                        <h3>${place.name || 'Unnamed Place'}</h3>
+                        <p><strong>📍 Location:</strong> ${place.division || 'Unknown'}</p>
+                        <p><strong>📝 Category:</strong> ${place.category || 'General'}</p>
+                        <p><strong>💰 Est. Cost:</strong> ৳${place.cost || '0'}</p>
+                        <div class="bookmark-actions">
+                            <button class="btn-small btn-view" onclick="viewPlace(${index})">View Details</button>
+                            <button class="btn-small btn-remove" onclick="removeBookmark(${index})">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // View place details
+        function viewPlace(index) {
+            const bookmarks = JSON.parse(localStorage.getItem('user_bookmarks') || '[]');
+            const place = bookmarks[index];
+            alert(`📍 ${place.name}\n\nLocation: ${place.division}\nCategory: ${place.category}\nEstimated Cost: ৳${place.cost}`);
+        }
+
+        // Remove bookmark
+        function removeBookmark(index) {
+            if (confirm('Are you sure you want to remove this bookmark?')) {
+                const bookmarks = JSON.parse(localStorage.getItem('user_bookmarks') || '[]');
+                bookmarks.splice(index, 1);
+                localStorage.setItem('user_bookmarks', JSON.stringify(bookmarks));
+                loadBookmarks();
+            }
+        }
+
+        // Logout function
+        function logoutUser() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user_token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_email');
+                window.location.href = '/frontend/panels/user/authentication/login.html';
+            }
+        }
+
+        // Initialize
+        checkUserLoggedIn();
+        loadUserData();
+        loadBookmarks();
+    </script>
+</body>
+</html>

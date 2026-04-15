@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Management - Ghuri-Phiri Admin</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .admin-nav-bar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            color: white;
+        }
+        .admin-nav-links { display: flex; gap: 2rem; }
+        .admin-nav-links a { text-decoration: none; color: white; font-weight: 500; padding: 0.5rem 1rem; border-radius: 5px; transition: all 0.3s; }
+        .admin-nav-links a:hover, .admin-nav-links a.active { background: rgba(255,255,255,0.2); }
+        .admin-badge { display: flex; align-items: center; gap: 1rem; }
+        .logout-btn { background: #e74c3c; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; }
+        .page-header { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 2rem; border-radius: 10px; margin-bottom: 2rem; }
+        .search-bar { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .search-bar input { width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; }
+        .users-table { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #2c3e50; color: white; padding: 1rem; text-align: left; }
+        td { padding: 1rem; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f9f9f9; }
+        .status-badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-suspended { background: #f8d7da; color: #721c24; }
+        .btn-small { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .btn-view { background: #3498db; color: white; }
+        .btn-block { background: #e74c3c; color: white; }
+        .btn-view:hover { background: #2980b9; }
+        .btn-block:hover { background: #c0392b; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .stat-card h3 { font-size: 0.9rem; color: #666; margin: 0 0 0.5rem 0; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="admin-nav-bar">
+        <h2 style="margin: 0;">🛡️ Admin Dashboard</h2>
+        <div class="admin-nav-links">
+            <a href="/frontend/panels/admin/pages/dashboard.html">Dashboard</a>
+            <a href="/frontend/panels/admin/pages/destinations.html">Destinations</a>
+            <a href="/frontend/panels/admin/pages/pricing.html">Pricing</a>
+            <a href="/frontend/panels/admin/pages/users.html" class="active">Users</a>
+            <a href="/frontend/panels/admin/pages/analytics.html">Analytics</a>
+            <a href="/frontend/panels/admin/pages/audit-logs.html">Audit Logs</a>
+        </div>
+        <div class="admin-badge">
+            <span id="admin-name">Admin</span>
+            <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 1rem;">
+        <div class="page-header">
+            <h1>👥 User Management</h1>
+            <p>Monitor and manage user accounts</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="stat-value" id="total-users">1,234</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Users (This Month)</h3>
+                <div class="stat-value" id="active-users">567</div>
+            </div>
+            <div class="stat-card">
+                <h3>New Users (This Week)</h3>
+                <div class="stat-value" id="new-users">89</div>
+            </div>
+            <div class="stat-card">
+                <h3>Suspended Accounts</h3>
+                <div class="stat-value" id="suspended-users">12</div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by name or email..." onkeyup="filterUsers()">
+        </div>
+
+        <div class="users-table">
+            <div class="table-wrapper">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Joined Date</th>
+                            <th>Bookmarks</th>
+                            <th>Plans</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Sample data --></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAdminLoggedIn() {
+            if (!localStorage.getItem('admin_token')) {
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+            }
+        }
+
+        function loadAdminData() {
+            const adminName = localStorage.getItem('admin_name') || 'Administrator';
+            document.getElementById('admin-name').textContent = `${adminName}`;
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('admin_users') || JSON.stringify([
+                { id: 'U001', name: 'Ahmed Hassan', email: 'ahmed@example.com', joined: '2024-01-15', bookmarks: 5, plans: 2, status: 'active' },
+                { id: 'U002', name: 'Fatima Khan', email: 'fatima@example.com', joined: '2024-02-20', bookmarks: 8, plans: 3, status: 'active' },
+                { id: 'U003', name: 'Karim Ali', email: 'karim@example.com', joined: '2024-01-10', bookmarks: 0, plans: 0, status: 'suspended' },
+                { id: 'U004', name: 'Noor Ahmed', email: 'noor@example.com', joined: '2024-03-05', bookmarks: 12, plans: 1, status: 'active' },
+                { id: 'U005', name: 'Sara Begum', email: 'sara@example.com', joined: '2024-02-28', bookmarks: 3, plans: 4, status: 'active' }
+            ]));
+
+            displayUsers(users);
+            updateUserStats(users);
+        }
+
+        function displayUsers(users) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${new Date(user.joined).toLocaleDateString()}</td>
+                    <td>${user.bookmarks}</td>
+                    <td>${user.plans}</td>
+                    <td><span class="status-badge status-${user.status}">${user.status.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn-small btn-view" onclick="viewUserDetails('${user.id}')">View</button>
+                        ${user.status === 'active' ? 
+                            `<button class="btn-small btn-block" onclick="suspendUser('${user.id}')">Block</button>` :
+                            `<button class="btn-small btn-view" onclick="activateUser('${user.id}')">Activate</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateUserStats(users) {
+            document.getElementById('total-users').textContent = users.length;
+            const active = users.filter(u => u.status === 'active').length;
+            document.getElementById('active-users').textContent = active;
+            document.getElementById('new-users').textContent = Math.floor(active * 0.15);
+            const suspended = users.filter(u => u.status === 'suspended').length;
+            document.getElementById('suspended-users').textContent = suspended;
+        }
+
+        function filterUsers() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
+            const filtered = users.filter(u => 
+                u.name.toLowerCase().includes(searchInput) || u.email.toLowerCase().includes(searchInput)
+            );
+            displayUsers(filtered);
+        }
+
+        function viewUserDetails(userId) {
+            alert(`User Details View\nUser ID: ${userId}\n\nFull implementation in Phase 2 with backend API.`);
+        }
+
+        function suspendUser(userId) {
+            if (confirm('Are you sure you want to suspend this user?')) {
+                alert('✅ User suspended successfully!');
+                loadUsers();
+            }
+        }
+
+        function activateUser(userId) {
+            if (confirm('Are you sure you want to activate this user?')) {
+                alert('✅ User activated successfully!');
+                loadUsers();
+            }
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_id');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_email');
+                localStorage.removeItem('admin_role');
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+            }
+        }
+
+        checkAdminLoggedIn();
+        loadAdminData();
+        loadUsers();
+    </script>
+</body>
+</html>

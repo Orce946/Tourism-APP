@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ghuri-Phiri</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .admin-nav-bar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .admin-nav-bar h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .admin-nav-links a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .admin-nav-links a:hover,
+        .admin-nav-links a.active {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+        
+        .metric-card.users {
+            border-left-color: #9b59b6;
+        }
+        
+        .metric-card.destinations {
+            border-left-color: #2ecc71;
+        }
+        
+        .metric-card.bookings {
+            border-left-color: #f39c12;
+        }
+        
+        .metric-card.revenue {
+            border-left-color: #e74c3c;
+        }
+        
+        .metric-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 0 0.5rem 0;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-change {
+            font-size: 0.85rem;
+            color: #27ae60;
+        }
+        
+        .metric-change.negative {
+            color: #e74c3c;
+        }
+        
+        .admin-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .admin-card-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .admin-card-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-card-body {
+            padding: 1.5rem;
+        }
+        
+        .admin-card h3 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .admin-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-admin {
+            background: #2c3e50;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn-admin:hover {
+            background: #34495e;
+        }
+        
+        .recent-activity {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .activity-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-badge {
+            background: #ecf0f1;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #2c3e50;
+        }
+        
+        .activity-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Navigation Bar -->
+    <div class="admin-nav-bar">
+        <h2>🛡️ Admin Dashboard</h2>
+        <div class="admin-nav-links">
+            <a href="/frontend/panels/admin/pages/dashboard.html" class="active">Dashboard</a>
+            <a href="/frontend/panels/admin/pages/destinations.html">Destinations</a>
+            <a href="/frontend/panels/admin/pages/pricing.html">Pricing</a>
+            <a href="/frontend/panels/admin/pages/users.html">Users</a>
+            <a href="/frontend/panels/admin/pages/analytics.html">Analytics</a>
+            <a href="/frontend/panels/admin/pages/audit-logs.html">Audit Logs</a>
+        </div>
+        <div class="admin-badge">
+            <span id="admin-name">Admin</span>
+            <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 1rem;">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Welcome to Admin Panel! 👋</h1>
+            <p>Monitor and manage your Ghuri-Phiri platform</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card users">
+                <h3>Total Users</h3>
+                <div class="metric-value" id="total-users">1,234</div>
+                <div class="metric-change">↑ 12% from last month</div>
+            </div>
+            
+            <div class="metric-card destinations">
+                <h3>Total Destinations</h3>
+                <div class="metric-value" id="total-destinations">98</div>
+                <div class="metric-change">↑ 5 new this month</div>
+            </div>
+            
+            <div class="metric-card bookings">
+                <h3>Active Bookings</h3>
+                <div class="metric-value" id="active-bookings">567</div>
+                <div class="metric-change">In progress plans</div>
+            </div>
+            
+            <div class="metric-card revenue">
+                <h3>This Month Revenue</h3>
+                <div class="metric-value" id="monthly-revenue">৳2.3M</div>
+                <div class="metric-change positive" id="revenue-change">↑ 18% growth</div>
+            </div>
+        </div>
+
+        <!-- Quick Access Sections -->
+        <div class="admin-sections">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">📍</div>
+                    <h3>Manage Destinations</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>Add, edit, or delete tourist destinations. Update images and pricing.</p>
+                    <a href="/frontend/panels/admin/pages/destinations.html" class="btn-admin">Manage</a>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">💰</div>
+                    <h3>Pricing Management</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>Update accommodation, food, and transportation costs by season.</p>
+                    <a href="/frontend/panels/admin/pages/pricing.html" class="btn-admin">Update Pricing</a>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">👥</div>
+                    <h3>User Management</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>View users, manage accounts, and monitor user activities.</p>
+                    <a href="/frontend/panels/admin/pages/users.html" class="btn-admin">View Users</a>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">📊</div>
+                    <h3>Analytics & Reports</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>View statistics on popular destinations and user behavior.</p>
+                    <a href="/frontend/panels/admin/pages/analytics.html" class="btn-admin">View Analytics</a>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">📋</div>
+                    <h3>Audit Logs</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>Track all admin actions and changes made to the platform.</p>
+                    <a href="/frontend/panels/admin/pages/audit-logs.html" class="btn-admin">View Logs</a>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-card-icon">🏠</div>
+                    <h3>Back to Main App</h3>
+                </div>
+                <div class="admin-card-body">
+                    <p>Return to the main Ghuri-Phiri application.</p>
+                    <a href="/frontend/home/" class="btn-admin">Home</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3>📋 Recent Administrative Activity</h3>
+            <div class="activity-item">
+                <div>
+                    <div><strong>New user registration</strong></div>
+                    <div style="color: #999; font-size: 0.9rem;">5 new users signed up</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="activity-badge">Today</div>
+                    <div class="activity-time">2 hours ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div>
+                    <div><strong>Destination Added</strong></div>
+                    <div style="color: #999; font-size: 0.9rem;">Sylhet Tea Gardens - Added by Admin</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="activity-badge">Today</div>
+                    <div class="activity-time">4 hours ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div>
+                    <div><strong>Price Update</strong></div>
+                    <div style="color: #999; font-size: 0.9rem;">Accommodation costs updated for peak season</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="activity-badge">Yesterday</div>
+                    <div class="activity-time">1 day ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div>
+                    <div><strong>User Blocked</strong></div>
+                    <div style="color: #999; font-size: 0.9rem;">1 user account suspended for violation</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="activity-badge">2 days ago</div>
+                    <div class="activity-time">2 days ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if admin is logged in
+        function checkAdminLoggedIn() {
+            if (!localStorage.getItem('admin_token')) {
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+                return;
+            }
+        }
+
+        // Load admin data
+        function loadAdminData() {
+            const adminName = localStorage.getItem('admin_name') || 'Administrator';
+            const adminRole = localStorage.getItem('admin_role') || 'Admin';
+            document.getElementById('admin-name').textContent = `${adminName} (${adminRole})`;
+            
+            // Load sample statistics
+            loadStatistics();
+        }
+
+        // Load statistics from localStorage (would be from API in Phase 2)
+        function loadStatistics() {
+            const stats = JSON.parse(localStorage.getItem('admin_stats') || JSON.stringify({
+                totalUsers: 1234,
+                totalDestinations: 98,
+                activeBookings: 567,
+                monthlyRevenue: '2,300,000'
+            }));
+
+            document.getElementById('total-users').textContent = stats.totalUsers.toLocaleString();
+            document.getElementById('total-destinations').textContent = stats.totalDestinations;
+            document.getElementById('active-bookings').textContent = stats.activeBookings;
+            document.getElementById('monthly-revenue').textContent = '৳' + stats.monthlyRevenue.toLocaleString();
+        }
+
+        // Logout function
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_id');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_email');
+                localStorage.removeItem('admin_role');
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+            }
+        }
+
+        // Initialize
+        checkAdminLoggedIn();
+        loadAdminData();
+    </script>
+</body>
+</html>

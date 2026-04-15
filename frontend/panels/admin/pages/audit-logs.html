@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Ghuri-Phiri Admin</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .admin-nav-bar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            color: white;
+        }
+        .admin-nav-links { display: flex; gap: 2rem; }
+        .admin-nav-links a { text-decoration: none; color: white; font-weight: 500; padding: 0.5rem 1rem; border-radius: 5px; transition: all 0.3s; }
+        .admin-nav-links a:hover, .admin-nav-links a.active { background: rgba(255,255,255,0.2); }
+        .admin-badge { display: flex; align-items: center; gap: 1rem; }
+        .logout-btn { background: #e74c3c; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; }
+        .page-header { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 2rem; border-radius: 10px; margin-bottom: 2rem; }
+        .filters-bar { background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .filters-bar select { padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; }
+        .logs-table { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .table-wrapper { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #2c3e50; color: white; padding: 1rem; text-align: left; position: sticky; top: 0; }
+        td { padding: 1rem; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f9f9f9; }
+        .action-badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        .action-create { background: #d4edda; color: #155724; }
+        .action-update { background: #d1ecf1; color: #0c5460; }
+        .action-delete { background: #f8d7da; color: #721c24; }
+        .action-login { background: #cfe2ff; color: #084298; }
+        .timestamp { color: #666; font-size: 0.9rem; }
+        .detail-text { color: #666; font-size: 0.9rem; }
+        .btn-export { background: #3498db; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 5px; cursor: pointer; float: right; }
+        .btn-export:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="admin-nav-bar">
+        <h2 style="margin: 0;">🛡️ Admin Dashboard</h2>
+        <div class="admin-nav-links">
+            <a href="/frontend/panels/admin/pages/dashboard.html">Dashboard</a>
+            <a href="/frontend/panels/admin/pages/destinations.html">Destinations</a>
+            <a href="/frontend/panels/admin/pages/pricing.html">Pricing</a>
+            <a href="/frontend/panels/admin/pages/users.html">Users</a>
+            <a href="/frontend/panels/admin/pages/analytics.html">Analytics</a>
+            <a href="/frontend/panels/admin/pages/audit-logs.html" class="active">Audit Logs</a>
+        </div>
+        <div class="admin-badge">
+            <span id="admin-name">Admin</span>
+            <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+        </div>
+    </div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 1rem;">
+        <div class="page-header">
+            <h1>📋 Audit Logs</h1>
+            <p>Track all administrative actions and system changes</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <select id="actionFilter" onchange="filterLogs()">
+                <option value="">All Actions</option>
+                <option value="CREATE">Create</option>
+                <option value="UPDATE">Update</option>
+                <option value="DELETE">Delete</option>
+                <option value="LOGIN">Login</option>
+            </select>
+            
+            <select id="adminFilter" onchange="filterLogs()">
+                <option value="">All Admins</option>
+                <option value="super_admin">Super Admin</option>
+                <option value="content_manager">Content Manager</option>
+            </select>
+            
+            <select id="dateFilter" onchange="filterLogs()">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+            
+            <button class="btn-export" onclick="exportLogs()">📥 Export CSV</button>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="logs-table">
+            <div class="table-wrapper">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Admin</th>
+                            <th>Action</th>
+                            <th>Entity Type</th>
+                            <th>Entity ID</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Logs will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAdminLoggedIn() {
+            if (!localStorage.getItem('admin_token')) {
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+            }
+        }
+
+        function loadAdminData() {
+            const adminName = localStorage.getItem('admin_name') || 'Administrator';
+            document.getElementById('admin-name').textContent = `${adminName}`;
+        }
+
+        function loadLogs() {
+            const logs = JSON.parse(localStorage.getItem('admin_logs') || JSON.stringify([
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*30).toISOString(), 
+                    admin: 'Ahmad Admin', 
+                    action: 'UPDATE', 
+                    entityType: 'Destination', 
+                    entityId: 'D123', 
+                    details: 'Updated pricing for Cox\'s Bazar',
+                    ip: '192.168.1.100'
+                },
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*120).toISOString(), 
+                    admin: 'Fatima Manager', 
+                    action: 'CREATE', 
+                    entityType: 'Destination', 
+                    entityId: 'D456', 
+                    details: 'Added new destination: Khagrachari Hill Tracts',
+                    ip: '192.168.1.101'
+                },
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*240).toISOString(), 
+                    admin: 'Ahmad Admin', 
+                    action: 'DELETE', 
+                    entityType: 'User', 
+                    entityId: 'U789', 
+                    details: 'Removed inactive user account',
+                    ip: '192.168.1.100'
+                },
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*300).toISOString(), 
+                    admin: 'Noor Admin', 
+                    action: 'LOGIN', 
+                    entityType: 'Admin', 
+                    entityId: 'A001', 
+                    details: 'Admin login successful',
+                    ip: '192.168.1.102'
+                },
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*360).toISOString(), 
+                    admin: 'Fatima Manager', 
+                    action: 'UPDATE', 
+                    entityType: 'Pricing', 
+                    entityId: 'P001', 
+                    details: 'Updated seasonal price multipliers for peak season',
+                    ip: '192.168.1.101'
+                },
+                { 
+                    timestamp: new Date(Date.now() - 1000*60*420).toISOString(), 
+                    admin: 'Ahmad Admin', 
+                    action: 'UPDATE', 
+                    entityType: 'User', 
+                    entityId: 'U234', 
+                    details: 'Suspended user account due to violation',
+                    ip: '192.168.1.100'
+                }
+            ]));
+
+            displayLogs(logs);
+        }
+
+        function displayLogs(logs) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = logs.map(log => {
+                const date = new Date(log.timestamp);
+                const actionClass = 'action-' + log.action.toLowerCase();
+                return `
+                    <tr>
+                        <td>
+                            <div class="timestamp">${date.toLocaleDateString()}</div>
+                            <div class="timestamp">${date.toLocaleTimeString()}</div>
+                        </td>
+                        <td>${log.admin}</td>
+                        <td><span class="action-badge ${actionClass}">${log.action}</span></td>
+                        <td>${log.entityType}</td>
+                        <td>${log.entityId}</td>
+                        <td><div class="detail-text">${log.details}</div></td>
+                        <td class="detail-text">${log.ip}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterLogs() {
+            const actionFilter = document.getElementById('actionFilter').value;
+            const logs = JSON.parse(localStorage.getItem('admin_logs') || '[]');
+            
+            const filtered = logs.filter(log => 
+                (actionFilter === '' || log.action === actionFilter)
+            );
+            
+            displayLogs(filtered);
+        }
+
+        function exportLogs() {
+            const logs = JSON.parse(localStorage.getItem('admin_logs') || '[]');
+            let csv = 'Timestamp,Admin,Action,Entity Type,Entity ID,Details,IP Address\n';
+            
+            logs.forEach(log => {
+                const date = new Date(log.timestamp).toISOString();
+                const details = `"${log.details}"`;
+                csv += `${date},${log.admin},${log.action},${log.entityType},${log.entityId},${details},${log.ip}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            alert('✅ Audit logs exported successfully!');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_id');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_email');
+                localStorage.removeItem('admin_role');
+                window.location.href = '/frontend/panels/admin/authentication/login.html';
+            }
+        }
+
+        checkAdminLoggedIn();
+        loadAdminData();
+        loadLogs();
+    </script>
+</body>
+</html>

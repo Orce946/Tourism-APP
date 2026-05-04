@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tourism App Login</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card">
+      <p class="eyebrow">Account Access</p>
+      <h1>Login or Sign Up</h1>
+      <p class="auth-copy">Create a public account first, then log in. Only the fixed admin emails can enter the admin dashboard.</p>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
+        <button type="button" class="auth-tab-btn is-active" data-auth-tab="login">Login</button>
+        <button type="button" class="auth-tab-btn" data-auth-tab="signup">Sign Up</button>
+      </div>
+
+      <form id="loginForm" class="auth-form" data-auth-panel="login">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" name="email" type="email" placeholder="admin@tourism.local" required>
+
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" name="password" type="password" placeholder="••••••••" required>
+
+        <button type="submit" class="auth-button">Login</button>
+      </form>
+
+      <!-- Step 1: Enter Name -->
+      <form id="signupStep1Form" class="auth-form is-hidden" data-auth-panel="signup">
+        <label for="signupName">Name</label>
+        <input id="signupName" name="name" type="text" placeholder="Your name" required>
+
+        <button type="submit" class="auth-button">Next</button>
+      </form>
+
+      <!-- Step 2: Set Password -->
+      <form id="signupStep2Form" class="auth-form is-hidden" data-auth-panel="signup">
+        <p class="auth-step-info">Now set your password</p>
+
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" name="password" type="password" placeholder="Create a password (min 4 characters)" required>
+
+        <label for="signupConfirmPassword">Confirm Password</label>
+        <input id="signupConfirmPassword" name="confirmPassword" type="password" placeholder="Repeat your password" required>
+
+        <button type="submit" class="auth-button">Next</button>
+      </form>
+
+      <!-- Step 3: Enter Email -->
+      <form id="signupStep3Form" class="auth-form is-hidden" data-auth-panel="signup">
+        <p class="auth-step-info">Now enter your email address</p>
+
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" name="email" type="email" placeholder="your@email.com" required>
+
+        <button type="submit" class="auth-button">Send Verification Code</button>
+      </form>
+
+      <!-- Step 4: Verify Code -->
+      <form id="signupStep4Form" class="auth-form is-hidden" data-auth-panel="signup">
+        <p class="auth-step-info" id="verificationEmailInfo">Verification code sent to your email</p>
+        
+        <label for="verificationCode">Verification Code</label>
+        <input id="verificationCode" name="code" type="text" placeholder="Enter 6-digit code" required maxlength="6">
+
+        <button type="submit" class="auth-button">Verify Code & Create Account</button>
+        <button type="button" class="auth-link-btn" id="resendCodeBtn">Didn't receive code? Resend</button>
+      </form>
+
+      <!-- Step 5: Success -->
+      <div id="signupStep5Success" class="auth-form is-hidden" data-auth-panel="signup">
+        <div class="success-message">
+          <p class="success-icon">✓</p>
+          <h2>Account Created Successfully!</h2>
+          <p id="successEmailDisplay">your@email.com</p>
+          <p class="auth-step-info">Your account has been created. You can now login with your email and password.</p>
+          <button type="button" class="auth-button" id="goToLoginBtn">Go to Login</button>
+        </div>
+      </div>
+
+      <p id="loginMessage" class="auth-message" aria-live="polite"></p>
+      <p id="signupMessage" class="auth-message" aria-live="polite"></p>
+      <p id="signupStep1Message" class="auth-message" aria-live="polite"></p>
+      <p id="signupStep2Message" class="auth-message" aria-live="polite"></p>
+      <p id="signupStep3Message" class="auth-message" aria-live="polite"></p>
+      <p id="signupStep4Message" class="auth-message" aria-live="polite"></p>
+      <a href="ui.html" class="auth-link">Back to home</a>
+    </section>
+  </main>
+  <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Division Details</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="division-page">
+
+<div class="division-shell">
+    <a href="ui.html" class="back-link">← Back to Home</a>
+
+    <section class="division-hero">
+        <div>
+            <p class="eyebrow">Dynamic Destination Detail</p>
+            <h1 id="divisionName">Division Name</h1>
+            <p id="divisionMeta" class="hero-meta">Loading details...</p>
+        </div>
+        <div id="divisionStats" class="hero-stats"></div>
+    </section>
+
+    <section class="weather-preview-card" aria-label="Weather widget preview">
+        <div>
+            <p class="weather-label">Live Weather</p>
+            <h2 id="weatherLocation">Loading weather...</h2>
+            <p id="weatherDescription" class="weather-description">Fetching current weather for the selected division.</p>
+        </div>
+        <div class="weather-preview-chip" id="weatherStatus">Loading</div>
+    </section>
+
+    <section class="map-section" aria-label="Division map view">
+        <div class="map-section-header">
+            <p class="weather-label">Location Map</p>
+            <h2>Explore Division on Map</h2>
+        </div>
+        <div id="divisionMap" class="division-map"></div>
+    </section>
+
+    <section class="transport-section" aria-label="Transportation options">
+        <div class="transport-section-header">
+            <p class="weather-label">Transportation & Routes</p>
+            <h2 id="transportTitle">Bus and train options</h2>
+            <p id="transportDescription" class="weather-description">Quick route ideas for the selected division before connecting any transport API.</p>
+        </div>
+        <div id="transportGrid" class="transport-grid"></div>
+    </section>
+
+    <div class="page-controls detail-controls">
+        <div class="control-group">
+            <label for="spotSearch">Search Spot</label>
+            <input id="spotSearch" type="search" placeholder="Search by tourist spot">
+        </div>
+        <div class="control-group">
+            <label for="spotBudgetFilter">Budget Range</label>
+            <select id="spotBudgetFilter">
+                <option value="all">All Budgets</option>
+                <option value="low">Low Budget</option>
+                <option value="medium">Medium Budget</option>
+                <option value="high">High Budget</option>
+            </select>
+        </div>
+        <div class="control-group grow">
+            <label for="spotSort">Sort By</label>
+            <select id="spotSort">
+                <option value="name">Spot Name</option>
+                <option value="cost-low">Lowest Cost</option>
+                <option value="cost-high">Highest Cost</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="spotSummary" class="results-summary"></div>
+    <div id="spotGrid" class="spot-grid"></div>
+</div>
+
+<script src="script.js"></script>
+<script src="auth.js"></script>
+
+</body>
+</html>

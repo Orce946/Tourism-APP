@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+  <!-- Admin Navbar -->
+  <nav id="adminNavbar" class="admin-navbar is-hidden">
+    <button id="logoutBtnAdminNav" class="logout-btn-nav">Logout</button>
+  </nav>
+
+  <main class="admin-shell">
+    <a href="ui.html" class="back-link">← Back to Home</a>
+    <section class="admin-hero">
+      <p class="eyebrow">Admin Panel</p>
+      <h1>Dashboard</h1>
+      <p class="hero-meta">Manage destinations, update prices, and later connect database CRUD here.</p>
+    </section>
+
+    <section class="admin-grid">
+      <article class="admin-card">
+        <h2>Access</h2>
+        <p id="adminIdentity">Checking session...</p>
+      </article>
+      <article class="admin-card">
+        <h2>Next Tasks</h2>
+        <ul>
+          <li>Destination CRUD</li>
+          <li>Price control</li>
+          <li>User management</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="admin-card admin-management">
+      <h2>Manage Divisions</h2>
+      <p id="adminMessage" style="color:#3a3;">&nbsp;</p>
+      <form id="createDivisionForm">
+        <input name="id" placeholder="division id (e.g. dhaka)" required>
+        <input name="name" placeholder="Division name (e.g. Dhaka)" required>
+        <button type="submit" class="btn">Create Division</button>
+      </form>
+
+      <div id="divisionsList" style="margin-top:16px;"></div>
+    </section>
+  </main>
+  <script src="auth.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

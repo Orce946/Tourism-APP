@@ -181,6 +181,72 @@ function getDivisionCoordinates(divisionId) {
     return divisionCoordinates[divisionId] || null;
 }
 
+// Get user's current location using Geolocation API
+function getUserCurrentLocation() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error("Geolocation is not supported by this browser."));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                });
+            },
+            (error) => {
+                reject(new Error(`Geolocation error: ${error.message}`));
+            }
+        );
+    });
+}
+
+// Build Google Maps routing URL from current location to destination
+function buildGoogleMapsRoutingUrl(startLat, startLng, endLat, endLng, spotName) {
+    return `https://www.google.com/maps/dir/${startLat},${startLng}/${endLat},${endLng}/?travelmode=driving`;
+}
+
+// Get best route using Google Maps Directions API (free tier via URL)
+async function findBestRoutes(currentLat, currentLng, spotLat, spotLng, spotName) {
+    try {
+        const routingUrl = buildGoogleMapsRoutingUrl(currentLat, currentLng, spotLat, spotLng, spotName);
+        return {
+            googleMapsUrl: routingUrl,
+            spotName: spotName,
+            routeType: "Driving"
+        };
+    } catch (error) {
+        console.error("Route finding error:", error);
+        return null;
+    }
+}
+
+// Get weather forecast for 7 days
+async function getWeatherForecast(latitude, longitude) {
+    try {
+        const url = new URL("https://api.open-meteo.com/v1/forecast");
+        url.searchParams.set("latitude", String(latitude));
+        url.searchParams.set("longitude", String(longitude));
+        url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum");
+        url.searchParams.set("timezone", "auto");
+
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+            throw new Error(`Weather forecast request failed (${response.status})`);
+        }
+
+        const payload = await response.json();
+        return payload.daily || null;
+    } catch (error) {
+        console.error("Weather forecast error:", error);
+        return null;
+    }
+}
+
 function getTransportOptions(divisionId) {
     return divisionTransportOptions[divisionId] || defaultTransportOptions;
 }
@@ -255,6 +321,7 @@ async function loadDivisionWeather(division) {
         url.searchParams.set("latitude", String(coordinates.latitude));
         url.searchParams.set("longitude", String(coordinates.longitude));
         url.searchParams.set("current", "temperature_2m,weather_code,wind_speed_10m");
+        url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min");
         url.searchParams.set("timezone", "auto");
 
         const response = await fetch(url.toString());
@@ -274,8 +341,18 @@ async function loadDivisionWeather(division) {
         const weatherLabel = getWeatherCodeLabel(current.weather_code);
         const windSpeed = Math.round(Number(current.wind_speed_10m));
 
+        // Build forecast info for next 3 days
+        let forecastInfo = `${weatherLabel}. Temp ${temperature}°C, wind ${windSpeed} km/h.`;
+        
+        if (payload.daily && payload.daily.time && payload.daily.time.length > 0) {
+            const tomorrow = payload.daily.time[1];
+            const tomorrowMax = payload.daily.temperature_2m_max[1];
+            const tomorrowMin = payload.daily.temperature_2m_min[1];
+            forecastInfo += ` Tomorrow: ${Math.round(tomorrowMin)}°C-${Math.round(tomorrowMax)}°C`;
+        }
+
         weatherLocationNode.textContent = `${coordinates.label} weather`;
-        weatherDescriptionNode.textContent = `${weatherLabel}. Temperature ${temperature}°C, wind ${windSpeed} km/h.`;
+        weatherDescriptionNode.textContent = forecastInfo;
         weatherStatusNode.textContent = `${temperature}°C`;
     } catch (error) {
         weatherLocationNode.textContent = `${coordinates.label} weather`;
@@ -316,6 +393,59 @@ function getDivisionSummary(division) {
         cheapest,
         mostExpensive,
     };
+}
+
+// Flatten all spots from all divisions for spot-based search
+function flattenAllSpots(divisions) {
+    const allSpots = [];
+    divisions.forEach(division => {
+        (division.spots || []).forEach(spot => {
+            allSpots.push({
+                ...spot,
+                division_id: division.id,
+                division_name: division.name,
+                division_image: divisionImageMap[division.id] || defaultDivisionImage
+            });
+        });
+    });
+    return allSpots;
+}
+
+// Create spot card for search results
+function createSearchSpotCardHtml(spot) {
+    const costValue = parseCost(spot.cost);
+    const budgetBand = getBudgetBand(costValue);
+    const mapUrl = buildOpenStreetMapUrl(spot.division_name, spot.spot_name);
+    const spotId = `spot-${spot.spot_name.replace(/\s+/g, '-').toLowerCase()}`;
+
+    return `
+        <article class="spot-card-extended">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+                <h3 style="margin:0;">${spot.spot_name || "Unknown Spot"}</h3>
+                <span style="background:#32470C;color:white;padding:4px 8px;border-radius:4px;font-size:12px;white-space:nowrap;">${spot.division_name}</span>
+            </div>
+            <div class="spot-details-list">
+                <p><strong>Cost:</strong> ${spot.cost || "N/A"}</p>
+                <p><strong>Hotel:</strong> ${spot.hotel || "N/A"}</p>
+                <p><strong>Budget:</strong> ${budgetBand}</p>
+                <p><strong>Maps:</strong> 
+                    <a href="${mapUrl}" target="_blank" rel="noreferrer" style="margin-right:8px;">OpenStreetMap</a>
+                    <button class="get-route-btn" data-spot-name="${spot.spot_name}" data-division="${spot.division_name}" style="padding:4px 8px;background:#32470C;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;text-decoration:none;">📍 Route</button>
+                </p>
+            </div>
+        </article>
+    `;
+}
+
+// Update renderHomeSummary for spots
+function renderHomeSpotsSummary(total, visible) {
+    const summaryNode = document.getElementById("resultsSummary");
+
+    if (!summaryNode) {
+        return;
+    }
+
+    summaryNode.textContent = `${visible} of ${total} spots found`;
 }
 
 function createDivisionCardHtml(division) {
@@ -369,34 +499,89 @@ function renderHomeGrid(divisions) {
         return;
     }
 
+    // Flatten all spots from all divisions
+    const allSpots = flattenAllSpots(divisions);
+
     const applyFilters = () => {
         const searchValue = String(searchInput?.value || "").trim().toLowerCase();
         const selectedBudget = String(budgetFilter?.value || "all");
         const selectedSort = String(sortSelect?.value || "name");
 
-        let filtered = divisions.filter((division) => {
-            const matchesName = !searchValue || String(division.name || "").toLowerCase().includes(searchValue);
-            const matchesBudget = matchesDivisionBudget(division, selectedBudget);
+        // Filter spots by name, place, or division
+        let filtered = allSpots.filter((spot) => {
+            const matchesName = !searchValue || 
+                String(spot.spot_name || "").toLowerCase().includes(searchValue) ||
+                String(spot.division_name || "").toLowerCase().includes(searchValue);
+            
+            const matchesBudget = selectedBudget === "all" || 
+                getBudgetBand(parseCost(spot.cost)) === selectedBudget;
+            
             return matchesName && matchesBudget;
         });
 
+        // Sort spots
         filtered = filtered.sort((left, right) => {
-            if (selectedSort === "spots") {
-                return getDivisionSummary(right).spotCount - getDivisionSummary(left).spotCount;
+            if (selectedSort === "cost-low") {
+                return parseCost(left.cost) - parseCost(right.cost);
             }
 
-            if (selectedSort === "cheapest") {
-                return getDivisionSummary(left).cheapest - getDivisionSummary(right).cheapest;
+            if (selectedSort === "cost-high") {
+                return parseCost(right.cost) - parseCost(left.cost);
             }
 
-            return String(left.name || "").localeCompare(String(right.name || ""));
+            if (selectedSort === "division") {
+                return String(left.division_name || "").localeCompare(String(right.division_name || ""));
+            }
+
+            return String(left.spot_name || "").localeCompare(String(right.spot_name || ""));
         });
 
         gridSection.innerHTML = filtered.length
-            ? filtered.map(createDivisionCardHtml).join("")
-            : '<div class="empty-state">No divisions match your search.</div>';
+            ? filtered.map(createSearchSpotCardHtml).join("")
+            : '<div class="empty-state">No spots match your search. Try a different search term.</div>';
 
-        renderHomeSummary(divisions.length, filtered.length);
+        renderHomeSpotsSummary(allSpots.length, filtered.length);
+        
+        // Add route button event listeners
+        const routeButtons = gridSection.querySelectorAll('.get-route-btn');
+        routeButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const spotName = btn.getAttribute('data-spot-name');
+                const divisionName = btn.getAttribute('data-division');
+                
+                btn.textContent = '🔄 Finding...';
+                btn.disabled = true;
+                
+                try {
+                    const userLocation = await getUserCurrentLocation();
+                    
+                    // Get division coordinates
+                    const division = divisions.find(d => d.name === divisionName);
+                    if (!division) throw new Error('Division not found');
+                    
+                    const coords = getDivisionCoordinates(division.id);
+                    if (!coords) throw new Error('Coordinates not found');
+                    
+                    const routeUrl = buildGoogleMapsRoutingUrl(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        coords.latitude,
+                        coords.longitude,
+                        `${spotName}, ${divisionName}`
+                    );
+                    
+                    window.open(routeUrl, '_blank');
+                    btn.textContent = '📍 Route';
+                    btn.disabled = false;
+                } catch (error) {
+                    alert('Could not get your location or find route. Please enable location services.');
+                    console.error('Route error:', error);
+                    btn.textContent = '📍 Route';
+                    btn.disabled = false;
+                }
+            });
+        });
     };
 
     searchInput?.addEventListener("input", applyFilters);
@@ -418,7 +603,10 @@ function createSpotCardHtml(spot) {
                 <p><strong>Cost:</strong> ${spot.cost || "N/A"}</p>
                 <p><strong>Hotel:</strong> ${spot.hotel || "N/A"}</p>
                 <p><strong>Budget:</strong> ${budgetBand}</p>
-                <p><strong>Map:</strong> <a href="${mapUrl}" target="_blank" rel="noreferrer">OpenStreetMap</a></p>
+                <p><strong>Maps:</strong> 
+                    <a href="${mapUrl}" target="_blank" rel="noreferrer" style="margin-right:8px;">OpenStreetMap</a>
+                    <button class="get-route-btn-detail" data-spot-name="${spot.spot_name}" style="padding:4px 8px;background:#32470C;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;text-decoration:none;">📍 Route</button>
+                </p>
             </div>
         </article>
     `;
@@ -489,6 +677,42 @@ function renderDivisionDetail(division) {
             : '<div class="empty-state">No tourist spots match your filters.</div>';
 
         spotSummary.textContent = `${filtered.length} of ${(division.spots || []).length} spots shown`;
+        
+        // Add route button event listeners for detail page
+        const routeButtons = spotGrid.querySelectorAll('.get-route-btn-detail');
+        routeButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const spotName = btn.getAttribute('data-spot-name');
+                
+                btn.textContent = '🔄 Finding...';
+                btn.disabled = true;
+                
+                try {
+                    const userLocation = await getUserCurrentLocation();
+                    const coords = getDivisionCoordinates(division.id);
+                    
+                    if (!coords) throw new Error('Coordinates not found');
+                    
+                    const routeUrl = buildGoogleMapsRoutingUrl(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        coords.latitude,
+                        coords.longitude,
+                        `${spotName}, ${division.name}`
+                    );
+                    
+                    window.open(routeUrl, '_blank');
+                    btn.textContent = '📍 Route';
+                    btn.disabled = false;
+                } catch (error) {
+                    alert('Could not get your location or find route. Please enable location services.');
+                    console.error('Route error:', error);
+                    btn.textContent = '📍 Route';
+                    btn.disabled = false;
+                }
+            });
+        });
     };
 
     searchInput?.addEventListener("input", applyFilters);
@@ -521,20 +745,62 @@ function initializeMap(division) {
     // Create Google Maps link
     const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(coords.label)}/@${coords.latitude},${coords.longitude},11z`;
 
-    // Render map link button with full-size card design
+    // Render map section with location and routing options
     mapContainer.innerHTML = `
-        <a href="${googleMapsUrl}" target="_blank" rel="noreferrer" 
-           style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;text-decoration:none;background:linear-gradient(135deg, #32470C 0%, #455A17 100%);border-radius:16px;color:white;padding:40px 20px;box-shadow:0 8px 20px rgba(50, 71, 12, 0.3);transition:all 0.3s ease;cursor:pointer;">
-            <div style="font-size:24px;font-weight:700;margin-bottom:8px;text-align:center;">
-                View Location on Map
-            </div>
-            <div style="font-size:14px;opacity:0.95;text-align:center;">
-                See directions & nearby places for ${coords.label}
-            </div>
-        </a>
+        <div style="display:flex;flex-direction:column;gap:12px;height:100%;width:100%;">
+            <a href="${googleMapsUrl}" target="_blank" rel="noreferrer" 
+               style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-decoration:none;background:linear-gradient(135deg, #32470C 0%, #455A17 100%);border-radius:16px;color:white;padding:20px;box-shadow:0 8px 20px rgba(50, 71, 12, 0.3);transition:all 0.3s ease;cursor:pointer;">
+                <div style="font-size:20px;font-weight:700;margin-bottom:8px;text-align:center;">
+                    📍 View on Map
+                </div>
+                <div style="font-size:13px;opacity:0.9;text-align:center;">
+                    See ${coords.label} location & nearby places
+                </div>
+            </a>
+            <button id="getCurrentLocationBtn" style="padding:12px 20px;background:#32470C;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s ease;">
+                📍 Use My Location & Find Routes
+            </button>
+        </div>
     `;
     
-    // Add hover effect
+    // Add current location handler
+    const currentLocationBtn = mapContainer.querySelector('#getCurrentLocationBtn');
+    if (currentLocationBtn) {
+        currentLocationBtn.addEventListener('click', async () => {
+            currentLocationBtn.textContent = '🔄 Finding your location...';
+            currentLocationBtn.disabled = true;
+            
+            try {
+                const userLocation = await getUserCurrentLocation();
+                const routeUrl = buildGoogleMapsRoutingUrl(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    coords.latitude,
+                    coords.longitude,
+                    coords.label
+                );
+                window.open(routeUrl, '_blank');
+                currentLocationBtn.textContent = '📍 Use My Location & Find Routes';
+                currentLocationBtn.disabled = false;
+            } catch (error) {
+                alert('Could not get your location. Please enable location services.');
+                console.error('Geolocation error:', error);
+                currentLocationBtn.textContent = '📍 Use My Location & Find Routes';
+                currentLocationBtn.disabled = false;
+            }
+        });
+        
+        currentLocationBtn.onmouseover = function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 16px rgba(50, 71, 12, 0.3)';
+        };
+        currentLocationBtn.onmouseout = function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        };
+    }
+    
+    // Add hover effect to map link
     const link = mapContainer.querySelector('a');
     if (link) {
         link.onmouseover = function() {
